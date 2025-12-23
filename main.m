@@ -8,6 +8,5 @@ results_table = table('Size', [0, 3], ...
                       'VariableNames', {'alpha', 'tau_number', 'APFDc'}); 
 
 deepScenarioData = process_dataset(); 
-alpha=1;
-tau_number=12;
-apfdc_ours = run_RiST(alpha,tau_number);
+
+apfdc_ours = run_RiST(1);
