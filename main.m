@@ -1,6 +1,7 @@
 clc; clear; close all;
 addpath("E:\code_dr\RiST-AD_code_ISSTA\statistical_analysis")
 addpath("E:\code_dr\RiST-AD_code_ISSTA\feature_extration")
+addpath("E:\code_dr\RiST-AD_code_ISSTA\RiST-AD_code_ISSTA\feature_extration")
 rng('default');  
 
 results_table = table('Size', [0, 3], ... 
