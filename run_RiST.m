@@ -1,4 +1,4 @@
-function apfdc_ours = run_RiST(alpha,tau_number)
+function apfdc_ours = run_RiST(alpha)
     if evalin('base', 'exist(''deepScenarioData'', ''var'')')
         data = evalin('base', 'deepScenarioData');
     else
@@ -7,7 +7,12 @@ function apfdc_ours = run_RiST(alpha,tau_number)
     validIdx = arrayfun(@(x) size(x.Features, 2) == 20 && ~isempty(x.Features), data);
     data = data(validIdx);
     N = length(data);
-   
+    use_time_delay_mode = false;
+    if use_time_delay_mode == false
+        tau_number=2;
+    else
+        tau_number=12;
+    end
     groundTruth = [data.Label]'; 
     durations = [data.Duration]';
     fprintf('scenarios N=%d, faults=%d\n', N, sum(groundTruth));
@@ -35,9 +40,17 @@ function apfdc_ours = run_RiST(alpha,tau_number)
             X_focus = zeros(0, D_base);
         end
         X_normalized = (X_focus - global_mu) ./ global_sigma;
-        X_t = X_normalized(1:current_tau, :);      
-        X_t_minus_1 = X_normalized(1:end, :); 
-        Z = [X_t, X_t_minus_1];
+
+        if use_time_delay_mode== false
+            X_t = X_normalized(2:end, :);      
+            X_t_minus_1 = X_normalized(1:end-1, :); 
+            Z = [X_t, X_t_minus_1];
+        else
+            current_tau = size(X_normalized, 1); 
+            X_t = X_normalized(1:current_tau, :);      
+            X_t_minus_1 = X_normalized(1:end, :); 
+            Z = [X_t, X_t_minus_1];
+        end
         [T_embed, ~] = size(Z);
         if T_embed < 2  
             C = eye(D_aug) * epsilon;
@@ -94,10 +107,10 @@ function apfdc_ours = run_RiST(alpha,tau_number)
 
     x_rand = avg_x_rand;
     y_rand = sum_y_interp / num_runs;
-    tau_number_baseline=tau_number;
+    tau_number_baseline=12;
     idx_greedy = run_baseline_greedy_risk(alpha, tau_number_baseline);
-    idx_mab = run_baseline_mab_adaptive_ea(alpha, tau_number_baseline);
-    idx_fps = run_baseline_euclidean_fps(3);
+    idx_mab = run_baseline_mab_adaptive_ea(alpha, 6);
+    idx_fps = run_baseline_euclidean_fps(6);
     plot_data = struct(); 
     
     % 1. Ours
